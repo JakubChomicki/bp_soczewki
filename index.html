@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symulator Testu Okularów Anaglifowych</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Filter simulation classes */
+        .filter-none {
+            filter: none;
+        }
+        /* Red lens: passes red, blocks green/cyan -> green items turn dark/black */
+        .filter-red {
+            filter: sepia(1) hue-rotate(-50deg) saturate(6) contrast(1.5);
+            background-color: rgba(255, 0, 0, 0.15);
+        }
+        /* Green lens: passes green, blocks red -> red items turn dark/black */
+        .filter-green {
+            filter: sepia(1) hue-rotate(80deg) saturate(5) contrast(1.5);
+            background-color: rgba(0, 255, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+
+
+    <!-- Main Content Area -->
+    <main class="max-w-4xl w-full mx-auto p-4 sm:p-6 my-auto flex flex-col items-center">
+
+        <!-- Mode Switcher Buttons -->
+        <div class="w-full bg-slate-900/90 border border-slate-800 p-2 rounded-2xl shadow-xl flex flex-wrap gap-2 justify-center mb-8">
+            <button onclick="setFilter('none')" id="btn-none" class="flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
+                👁️ Bez okularów
+            </button>
+            <button onclick="setFilter('red')" id="btn-red" class="flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-slate-800 text-slate-300 hover:bg-slate-700 border border-red-500/30">
+                🔴 Czerwone szkło
+            </button>
+            <button onclick="setFilter('green')" id="btn-green" class="flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-slate-800 text-slate-300 hover:bg-slate-700 border border-emerald-500/30">
+                🟢 Zielone szkło
+            </button>
+        </div>
+
+        <!-- Interactive Canvas / Flyer Graphic Preview Box -->
+        <div class="w-full bg-white text-slate-900 rounded-3xl shadow-2xl p-6 sm:p-10 relative overflow-hidden transition-all duration-300 border-8 border-slate-900 flex flex-col items-center justify-center min-h-[360px]" id="flyer-box">
+            
+ 
+
+            <!-- Dynamic Viewport Container with Filter Applied -->
+            <div id="visual-content" class="w-full flex flex-col items-center justify-center transition-all duration-300 p-6 rounded-2xl relative z-10 filter-none">
+                
+                <!-- State 1: No glasses view -->
+                <div id="view-none" class="text-center space-y-4">
+                    <div class="inline-block bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-2">
+                        Widok standardowy na ulotce
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                        Na pierwszy rzut oka widzisz chaotyczny nadruk...
+                    </h2>
+                    <p class="text-slate-600 max-w-lg mx-auto text-sm sm:text-base">
+                        Na zwykłej ulotce nakładają się na siebie dwa różne komunikaty. Przełączając tutaj w przeglądarce albo zakładając fizycznie okulary (to dotyczyłoby ulotki) można odczytać ukryty napis/obraz
+                    </p>
+
+                </div>
+
+                <!-- State 2 & 3: The actual Anaglyph overlapping graphic -->
+                <div id="view-anaglyph" class="w-full text-center space-y-6">
+                    <!-- Overlapping graphics area -->
+                    <div class="relative py-8 px-4 flex flex-col items-center justify-center">
+                        
+                        <!-- Red element layer (Visible through GREEN lens, hidden/dark through RED lens) -->
+                        <div class="red-layer transition-transform duration-300 absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <div class="text-red-600 font-black text-3xl sm:text-4xl md:text-5xl tracking-wide drop-shadow-sm select-none">
+                                🌙 TRYB NOCNY: 100% REGENERACJA
+                            </div>
+                            <p class="text-red-500 font-semibold text-sm sm:text-base mt-2">
+                                [Widoczne idealnie w zielonych okularach / Blokada pełna]
+                            </p>
+                        </div>
+
+                        <!-- Green/Cyan element layer (Visible through RED lens, hidden/dark through GREEN lens) -->
+                        <div class="green-layer transition-transform duration-300 relative flex flex-col items-center justify-center">
+                            <div class="text-emerald-600 font-black text-3xl sm:text-4xl md:text-5xl tracking-wide drop-shadow-sm select-none">
+                                💼 KOMFORT PRACY: BIURO I EKRANY
+                            </div>
+                            <p class="text-emerald-500 font-semibold text-sm sm:text-base mt-2">
+                                [Widoczne idealnie w czerwonych okularach / Filtr 85%]
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- Explanatory badge below -->
+                    <div class="bg-slate-100 border border-slate-200 rounded-xl p-4 text-left max-w-lg mx-auto">
+                        <h4 id="dynamic-explanation-title" class="font-bold text-slate-800 text-sm mb-1">
+                            💡 Jak to działa fizycznie?
+                        </h4>
+                        <p id="dynamic-explanation-text" class="text-xs text-slate-600 leading-relaxed">
+                            Filtry barwne blokują światło o barwie przeciwnej. Czerwona soczewka odcina zielone fale, pozostawiając czytelnym tylko ukryty zielony tekst. Zielona soczewka robi dokładnie odwrotnie.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    <!-- Script to handle filter switching states -->
+    <script>
+        function setFilter(mode) {
+            const visualContent = document.getElementById('visual-content');
+            const redLayer = document.querySelector('.red-layer');
+            const greenLayer = document.querySelector('.green-layer');
+            const titleElem = document.getElementById('dynamic-explanation-title');
+            const textElem = document.getElementById('dynamic-explanation-text');
+            
+            // Buttons
+            const btnNone = document.getElementById('btn-none');
+            const btnRed = document.getElementById('btn-red');
+            const btnGreen = document.getElementById('btn-green');
+
+            // Reset button classes
+            [btnNone, btnRed, btnGreen].forEach(btn => {
+                btn.className = "flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700";
+            });
+
+            if (mode === 'none') {
+                visualContent.className = "w-full flex flex-col items-center justify-center transition-all duration-300 p-6 rounded-2xl relative z-10 filter-none";
+                redLayer.style.opacity = "0.7";
+                greenLayer.style.opacity = "0.7";
+                redLayer.style.transform = "translate(4px, 4px)";
+                greenLayer.style.transform = "translate(0px, 0px)";
+                
+                titleElem.innerText = "💡 Widok bez okularów (Efekt nałożenia)";
+                textElem.innerText = "Obie warstwy nachodzą na siebie, tworząc nierozpoznawalną plamę barwną dla ludzkiego oka.";
+                
+                btnNone.className = "flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30";
+            
+            } else if (mode === 'red') {
+                visualContent.className = "w-full flex flex-col items-center justify-center transition-all duration-300 p-6 rounded-2xl relative z-10 filter-red shadow-inner";
+                // Through RED lens, green elements turn dark/black, red elements pass through invisibly or blend into background
+                redLayer.style.opacity = "0.08";
+                greenLayer.style.opacity = "1";
+                redLayer.style.transform = "translate(0px, 0px)";
+                greenLayer.style.transform = "scale(1.02)";
+                
+                titleElem.innerText = "🔴 Co widzi klient w CZERWONYCH okularach?";
+                textElem.innerText = "Czerwona soczewka przepuszcza czerwień, ale blokuje zielony kolor. Dzięki temu zielony komunikat staje się głęboko czarny i w pełni czytelny, a czerwony znika!";
+                
+                btnRed.className = "flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-red-600 text-white shadow-lg shadow-red-600/30 border border-red-400";
+            
+            } else if (mode === 'green') {
+                visualContent.className = "w-full flex flex-col items-center justify-center transition-all duration-300 p-6 rounded-2xl relative z-10 filter-green shadow-inner";
+                // Through GREEN lens, red elements turn dark/black, green elements pass through
+                redLayer.style.opacity = "1";
+                greenLayer.style.opacity = "0.08";
+                greenLayer.style.transform = "scale(1.02)";
+                greenLayer.style.transform = "translate(0px, 0px)";
+                
+                titleElem.innerText = "🟢 Co widzi klient w ZIELONYCH okularach?";
+                textElem.innerText = "Zielona soczewka przepuszcza zielone fale światła, a odcina czerwone. Czerwony tekst staje się wyraźny i czytelny, podczas gdy zielona warstwa zlewa się z tłem.";
+                
+                btnGreen.className = "flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 border border-emerald-400";
+            }
+        }
+    </script>
+</body>
+</html>
