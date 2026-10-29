@@ -3,173 +3,598 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Symulator Testu Okularów Anaglifowych</title>
-    <!-- Tailwind CSS for modern styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Brilo Professional - Symulator Soczewek</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #0d0b14;
+            --text-main: #f3f3f6;
+            --text-muted: #a09cb0;
+            --accent-orange: #ff5e36;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
         }
-        /* Filter simulation classes */
-        .filter-none {
-            filter: none;
+
+        header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        /* Red lens: passes red, blocks green/cyan -> green items turn dark/black */
-        .filter-red {
-            filter: sepia(1) hue-rotate(-50deg) saturate(6) contrast(1.5);
-            background-color: rgba(255, 0, 0, 0.15);
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, #fff, #a09cb0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        /* Green lens: passes green, blocks red -> red items turn dark/black */
-        .filter-green {
-            filter: sepia(1) hue-rotate(80deg) saturate(5) contrast(1.5);
-            background-color: rgba(0, 255, 0, 0.15);
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #fff;
+        }
+
+        .hero-container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(18, 14, 29, 0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        @media (max-width: 968px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-orange);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 16px;
+        }
+
+        .description {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            min-height: 50px;
+        }
+
+        .lens-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .lens-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            padding: 10px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lens-btn .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .lens-btn:hover {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+        }
+
+        .lens-btn.active {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            border-color: rgba(255,255,255,0.4);
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+        }
+
+        /* CONTAINER SLIDERA */
+        .comparison-wrapper {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.12);
+            user-select: none;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
+
+        /* WARSTWA Z SOCZEWKĄ (TŁO) */
+        .layer-filtered {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+
+        .lens-filter-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            mix-blend-mode: multiply;
+            transition: background 0.4s ease;
+        }
+
+        /* WARSTWA BEZ SOCZEWKI (PRZYCINANA SUWAKIEM) */
+        .layer-raw {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: 2;
+            clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+        }
+
+        /* BOX TESTOWY DOKŁADNIE NA ŚRODKU ZDJĘCIA */
+        .center-card-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            height: 110px;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* TŁO KARTY */
+        .card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 12, 25, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        /* TREŚĆ Z SOCZEWKĄ (CZYSTA) */
+        .card-filtered-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 16px;
+            box-sizing: border-box;
+            z-index: 6;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* TREŚĆ BEZ SOCZEWKI (CHAOS - PRZYCINANA MASKĄ) */
+        .card-raw-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 16px;
+            box-sizing: border-box;
+            z-index: 7;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: rgba(15, 12, 25, 0.96);
+            border-radius: 18px;
+            clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+        }
+
+        .card-tag {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* Zamazany chaos - bez soczewki */
+        .raw-scramble {
+            position: relative;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            width: 100%;
+            height: 30px;
+        }
+        .raw-scramble span {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+        .raw-scramble .t1 { color: #ff3344; top: 0; }
+        .raw-scramble .t2 { color: #00ff88; top: -1px; margin-left: 2px; opacity: 0.8; }
+        .raw-scramble .t3 { color: #ffcc00; top: 1px; margin-left: -2px; opacity: 0.8; }
+
+        /* Czysty tekst - z soczewką */
+        .clean-text {
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        /* SUWAK */
+        .slider-handle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 3px;
+            background: #fff;
+            z-index: 10;
+            cursor: ew-resize;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .handle-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 44px;
+            height: 44px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            color: #000;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .view-label {
+            position: absolute;
+            top: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 6px 14px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 20px;
+            backdrop-filter: blur(8px);
+            z-index: 5;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .label-left { left: 20px; }
+        .label-right { right: 20px; }
+
+        .cta-btn {
+            background: var(--accent-orange);
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 94, 54, 0.4);
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+<body>
 
+    <header>
+        <div class="logo">BRILO</div>
+        <nav>
+            <a href="#">Kolekcja</a>
+            <a href="#">O technologii</a>
+            <a href="#">Test soczewek</a>
+            <a href="#">Kontakt</a>
+        </nav>
+    </header>
 
-
-    <!-- Main Content Area -->
-    <main class="max-w-4xl w-full mx-auto p-4 sm:p-6 my-auto flex flex-col items-center">
-
-        <!-- Mode Switcher Buttons -->
-        <div class="w-full bg-slate-900/90 border border-slate-800 p-2 rounded-2xl shadow-xl flex flex-wrap gap-2 justify-center mb-8">
-            <button onclick="setFilter('none')" id="btn-none" class="flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
-                👁️ Bez okularów
-            </button>
-            <button onclick="setFilter('red')" id="btn-red" class="flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-slate-800 text-slate-300 hover:bg-slate-700 border border-red-500/30">
-                🔴 Czerwone szkło
-            </button>
-            <button onclick="setFilter('green')" id="btn-green" class="flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-slate-800 text-slate-300 hover:bg-slate-700 border border-emerald-500/30">
-                🟢 Zielone szkło
-            </button>
-        </div>
-
-        <!-- Interactive Canvas / Flyer Graphic Preview Box -->
-        <div class="w-full bg-white text-slate-900 rounded-3xl shadow-2xl p-6 sm:p-10 relative overflow-hidden transition-all duration-300 border-8 border-slate-900 flex flex-col items-center justify-center min-h-[360px]" id="flyer-box">
+    <div class="hero-container">
+        <div class="hero-grid">
             
- 
+            <div class="hero-text">
+                <span class="badge" id="lens-number">01 / RUBY - NOCNA OCHRONA</span>
+                <h1 id="lens-title">Przełącz się na swój rytm.</h1>
+                <p class="description" id="lens-desc">
+                    Soczewka Ruby eliminuje 100% światła niebieskiego. Dedykowana do stosowania na 2-3 godziny przed snem, aby zsyntetyzować melatoninę.
+                </p>
 
-            <!-- Dynamic Viewport Container with Filter Applied -->
-            <div id="visual-content" class="w-full flex flex-col items-center justify-center transition-all duration-300 p-6 rounded-2xl relative z-10 filter-none">
-                
-                <!-- State 1: No glasses view -->
-                <div id="view-none" class="text-center space-y-4">
-                    <div class="inline-block bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-2">
-                        Widok standardowy na ulotce
-                    </div>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-                        Na pierwszy rzut oka widzisz chaotyczny nadruk...
-                    </h2>
-                    <p class="text-slate-600 max-w-lg mx-auto text-sm sm:text-base">
-                        Na zwykłej ulotce nakładają się na siebie dwa różne komunikaty. Przełączając tutaj w przeglądarce albo zakładając fizycznie okulary (to dotyczyłoby ulotki) można odczytać ukryty napis/obraz
-                    </p>
-
+                <div class="lens-selector">
+                    <button class="lens-btn active" onclick="selectLens(0)">
+                        <span class="dot" style="background: #ff3344;"></span> Ruby
+                    </button>
+                    <button class="lens-btn" onclick="selectLens(1)">
+                        <span class="dot" style="background: #ff8800;"></span> Amber
+                    </button>
+                    <button class="lens-btn" onclick="selectLens(2)">
+                        <span class="dot" style="background: #ffcc00;"></span> Topaz (85%)
+                    </button>
+                    <button class="lens-btn" onclick="selectLens(3)">
+                        <span class="dot" style="background: #ffe666;"></span> Cyri (65%)
+                    </button>
+                    <button class="lens-btn" onclick="selectLens(4)">
+                        <span class="dot" style="background: #00ff88;"></span> Zen
+                    </button>
                 </div>
 
-                <!-- State 2 & 3: The actual Anaglyph overlapping graphic -->
-                <div id="view-anaglyph" class="w-full text-center space-y-6">
-                    <!-- Overlapping graphics area -->
-                    <div class="relative py-8 px-4 flex flex-col items-center justify-center">
-                        
-                        <!-- Red element layer (Visible through GREEN lens, hidden/dark through RED lens) -->
-                        <div class="red-layer transition-transform duration-300 absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <div class="text-red-600 font-black text-3xl sm:text-4xl md:text-5xl tracking-wide drop-shadow-sm select-none">
-                                🌙 TRYB NOCNY: 100% REGENERACJA
-                            </div>
-                            <p class="text-red-500 font-semibold text-sm sm:text-base mt-2">
-                                [Widoczne idealnie w zielonych okularach / Blokada pełna]
-                            </p>
-                        </div>
+                <a href="#" class="cta-btn" id="cta-link">Odkryj Soczewkę Ruby &rarr;</a>
+            </div>
 
-                        <!-- Green/Cyan element layer (Visible through RED lens, hidden/dark through GREEN lens) -->
-                        <div class="green-layer transition-transform duration-300 relative flex flex-col items-center justify-center">
-                            <div class="text-emerald-600 font-black text-3xl sm:text-4xl md:text-5xl tracking-wide drop-shadow-sm select-none">
-                                💼 KOMFORT PRACY: BIURO I EKRANY
-                            </div>
-                            <p class="text-emerald-500 font-semibold text-sm sm:text-base mt-2">
-                                [Widoczne idealnie w czerwonych okularach / Filtr 85%]
-                            </p>
-                        </div>
+            <div class="comparison-wrapper" id="slider-box">
+                
+                <span class="view-label label-left">Bez soczewki</span>
+                <span class="view-label label-right">Przez soczewkę</span>
 
+                <!-- Z FILTREM (SOCZEWKA) -->
+                <div class="layer-filtered" id="layer-filtered-id" style="background-image: url('https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1000&q=80');">
+                    <div class="lens-filter-overlay" id="filter-color" style="background: rgba(230, 0, 35, 0.55);"></div>
+                </div>
+
+                <!-- BEZ FILTRA (PRZYCINANE SUWAKIEM) -->
+                <div class="layer-raw" id="layer-raw-id" style="background-image: url('https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1000&q=80');">
+                </div>
+
+                <!-- POJEDYNCZY BOX TESTOWY DOKŁADNIE NA ŚRODKU KADRU -->
+                <div class="center-card-wrapper" id="card-wrapper">
+                    <div class="card-bg"></div>
+
+                    <!-- PRAWIDŁOWA TREŚĆ (Z SOCZEWKĄ) -->
+                    <div class="card-filtered-content">
+                        <span class="card-tag">EFEKT FILTROWANIA</span>
+                        <div class="clean-text" id="clean-msg" style="color: #ff4d6d;">
+                            TRYB GŁĘBOKIEGO SNU
+                        </div>
                     </div>
 
-                    <!-- Explanatory badge below -->
-                    <div class="bg-slate-100 border border-slate-200 rounded-xl p-4 text-left max-w-lg mx-auto">
-                        <h4 id="dynamic-explanation-title" class="font-bold text-slate-800 text-sm mb-1">
-                            💡 Jak to działa fizycznie?
-                        </h4>
-                        <p id="dynamic-explanation-text" class="text-xs text-slate-600 leading-relaxed">
-                            Filtry barwne blokują światło o barwie przeciwnej. Czerwona soczewka odcina zielone fale, pozostawiając czytelnym tylko ukryty zielony tekst. Zielona soczewka robi dokładnie odwrotnie.
-                        </p>
+                    <!-- CHAOTYCZNA TREŚĆ (BEZ SOCZEWKI - PRZYCINANA MASKĄ) -->
+                    <div class="card-raw-content" id="card-raw-id">
+                        <span class="card-tag">TEST SPEKTRUM ŚWIATŁA</span>
+                        <div class="raw-scramble">
+                            <span class="t1">TRYB GŁĘBOKIEGO SNU</span>
+                            <span class="t2">REDUKCJA OLŚNIEŃ</span>
+                            <span class="t3">MAKSIMUM KONTRASTU</span>
+                        </div>
                     </div>
+                </div>
+
+                <!-- UCHWYT SUWAKA -->
+                <div class="slider-handle" id="handle">
+                    <div class="handle-btn">&leftrightarrow;</div>
                 </div>
 
             </div>
 
         </div>
+    </div>
 
-
-    <!-- Script to handle filter switching states -->
     <script>
-        function setFilter(mode) {
-            const visualContent = document.getElementById('visual-content');
-            const redLayer = document.querySelector('.red-layer');
-            const greenLayer = document.querySelector('.green-layer');
-            const titleElem = document.getElementById('dynamic-explanation-title');
-            const textElem = document.getElementById('dynamic-explanation-text');
-            
-            // Buttons
-            const btnNone = document.getElementById('btn-none');
-            const btnRed = document.getElementById('btn-red');
-            const btnGreen = document.getElementById('btn-green');
-
-            // Reset button classes
-            [btnNone, btnRed, btnGreen].forEach(btn => {
-                btn.className = "flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700";
-            });
-
-            if (mode === 'none') {
-                visualContent.className = "w-full flex flex-col items-center justify-center transition-all duration-300 p-6 rounded-2xl relative z-10 filter-none";
-                redLayer.style.opacity = "0.7";
-                greenLayer.style.opacity = "0.7";
-                redLayer.style.transform = "translate(4px, 4px)";
-                greenLayer.style.transform = "translate(0px, 0px)";
-                
-                titleElem.innerText = "💡 Widok bez okularów (Efekt nałożenia)";
-                textElem.innerText = "Obie warstwy nachodzą na siebie, tworząc nierozpoznawalną plamę barwną dla ludzkiego oka.";
-                
-                btnNone.className = "flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30";
-            
-            } else if (mode === 'red') {
-                visualContent.className = "w-full flex flex-col items-center justify-center transition-all duration-300 p-6 rounded-2xl relative z-10 filter-red shadow-inner";
-                // Through RED lens, green elements turn dark/black, red elements pass through invisibly or blend into background
-                redLayer.style.opacity = "0.08";
-                greenLayer.style.opacity = "1";
-                redLayer.style.transform = "translate(0px, 0px)";
-                greenLayer.style.transform = "scale(1.02)";
-                
-                titleElem.innerText = "🔴 Co widzi klient w CZERWONYCH okularach?";
-                textElem.innerText = "Czerwona soczewka przepuszcza czerwień, ale blokuje zielony kolor. Dzięki temu zielony komunikat staje się głęboko czarny i w pełni czytelny, a czerwony znika!";
-                
-                btnRed.className = "flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-red-600 text-white shadow-lg shadow-red-600/30 border border-red-400";
-            
-            } else if (mode === 'green') {
-                visualContent.className = "w-full flex flex-col items-center justify-center transition-all duration-300 p-6 rounded-2xl relative z-10 filter-green shadow-inner";
-                // Through GREEN lens, red elements turn dark/black, green elements pass through
-                redLayer.style.opacity = "1";
-                greenLayer.style.opacity = "0.08";
-                greenLayer.style.transform = "scale(1.02)";
-                greenLayer.style.transform = "translate(0px, 0px)";
-                
-                titleElem.innerText = "🟢 Co widzi klient w ZIELONYCH okularach?";
-                textElem.innerText = "Zielona soczewka przepuszcza zielone fale światła, a odcina czerwone. Czerwony tekst staje się wyraźny i czytelny, podczas gdy zielona warstwa zlewa się z tłem.";
-                
-                btnGreen.className = "flex-1 min-w-[120px] py-3 px-4 rounded-xl font-medium text-sm transition-all duration-200 bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 border border-emerald-400";
+        const lenses = [
+            {
+                name: "Ruby",
+                number: "01 / RUBY - BLOKADA NOCNA 99%+",
+                title: "Głęboka regeneracja przed snem.",
+                desc: "Czerwona soczewka odcina całkowicie pasmo niebieskie i zielone. Przygotowuje Twój mózg do głębokiego, naturalnego snu.",
+                color: "rgba(230, 0, 35, 0.55)",
+                textColor: "#ff4d6d",
+                cleanText: "TRYB GŁĘBOKIEGO SNU",
+                scene: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1000&q=80"
+            },
+            {
+                name: "Amber",
+                number: "02 / AMBER - POPRAWA KONTRASTU",
+                title: "Ciepłe światło, mniej olśnień.",
+                desc: "Pomarańczowa soczewka wycina rozpraszające blaski ekranów i reflektorów. Świetna na popołudnie i wieczorne przejażdżki.",
+                color: "rgba(255, 110, 0, 0.45)",
+                textColor: "#ffa04d",
+                cleanText: "REDUKCJA OLŚNIEŃ EKRANU",
+                scene: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1000&q=80"
+            },
+            {
+                name: "Topaz",
+                number: "03 / TOPAZ - 85% BLOKADY NIEBIESKIEGO",
+                title: "Maksymalny kontrast do pracy.",
+                desc: "Żółta soczewka 85% idealna dla programistów, graczy i osób spędzających długie godziny przed ostrymi monitorami.",
+                color: "rgba(255, 200, 0, 0.38)",
+                textColor: "#ffdb4d",
+                cleanText: "MAKSIMUM KONTRASTU",
+                scene: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1000&q=80"
+            },
+            {
+                name: "Cyri",
+                number: "04 / CYRI - 65% BLOKADY NIEBIESKIEGO",
+                title: "Zbalansowany komfort na cały dzień.",
+                desc: "Delikatniejszy odcień żółci. Zachowuje naturalną paletę barw otoczenia, dając ulgę oczom w biurze i w terenie.",
+                color: "rgba(255, 225, 90, 0.28)",
+                textColor: "#ffe875",
+                cleanText: "KOMFORT CAŁODZIENNY",
+                scene: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1000&q=80"
+            },
+            {
+                name: "Zen",
+                number: "05 / ZEN - RELAKS DLA OCZU",
+                title: "Spokój i naturalna harmonia.",
+                desc: "Zielona soczewka relaksuje mięśnie gałki ocznej i redukuje zmęczenie wzroku przy powtarzalnych zadaniach wizualnych.",
+                color: "rgba(0, 200, 100, 0.35)",
+                textColor: "#4dffb8",
+                cleanText: "NATURALNY RELAKS OCZU",
+                scene: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1000&q=80"
             }
+        ];
+
+        let isDragging = false;
+
+        function selectLens(idx) {
+            const data = lenses[idx];
+
+            document.getElementById('lens-number').innerText = data.number;
+            document.getElementById('lens-title').innerText = data.title;
+            document.getElementById('lens-desc').innerText = data.desc;
+            document.getElementById('cta-link').innerText = `Odkryj Soczewkę ${data.name} →`;
+
+            document.getElementById('filter-color').style.background = data.color;
+            document.getElementById('layer-raw-id').style.backgroundImage = `url('${data.scene}')`;
+            document.getElementById('layer-filtered-id').style.backgroundImage = `url('${data.scene}')`;
+
+            const cleanMsg = document.getElementById('clean-msg');
+            cleanMsg.innerText = data.cleanText;
+            cleanMsg.style.color = data.textColor;
+
+            const btns = document.querySelectorAll('.lens-btn');
+            btns.forEach((btn, i) => {
+                if (i === idx) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
         }
+
+        const sliderBox = document.getElementById('slider-box');
+        const handle = document.getElementById('handle');
+        const layerRaw = document.getElementById('layer-raw-id');
+        const cardRaw = document.getElementById('card-raw-id');
+        const cardWrapper = document.getElementById('card-wrapper');
+
+        function moveSlider(x) {
+            const rect = sliderBox.getBoundingClientRect();
+            let position = x - rect.left;
+            if (position < 0) position = 0;
+            if (position > rect.width) position = rect.width;
+
+            const percentage = (position / rect.width) * 100;
+            
+            // Przesuwaj suwak
+            handle.style.left = `${percentage}%`;
+            
+            // Przycinaj tło zdjęcia
+            layerRaw.style.clipPath = `polygon(0 0, ${percentage}% 0, ${percentage}% 100%, 0 100%)`;
+
+            // Przelicz maskę tnącą dokładnie dla boxa tekstowego na środku
+            const cardRect = cardWrapper.getBoundingClientRect();
+            let cardClipX = x - cardRect.left;
+            let cardClipPercentage = (cardClipX / cardRect.width) * 100;
+
+            if (cardClipPercentage < 0) cardClipPercentage = 0;
+            if (cardClipPercentage > 100) cardClipPercentage = 100;
+
+            cardRaw.style.clipPath = `polygon(0 0, ${cardClipPercentage}% 0, ${cardClipPercentage}% 100%, 0 100%)`;
+        }
+
+        sliderBox.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            moveSlider(e.clientX);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            moveSlider(e.clientX);
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        sliderBox.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            moveSlider(e.touches[0].clientX);
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            moveSlider(e.touches[0].clientX);
+        });
+
+        window.addEventListener('touchend', () => {
+            isDragging = false;
+        });
     </script>
 </body>
 </html>
